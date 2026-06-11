@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BakeryOrder – Pesan Roti & Kue Favorit Anda</title>
+  <meta name="description" content="Aplikasi pemesanan bakery digital – mudah, cepat, dan efisien">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍞</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3D1C02">
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<nav>
+  <div class="nav-brand" onclick="navigateTo('menu')" style="cursor:pointer;">
+    <span class="brand-icon">🍞</span>
+    <span>Bakery<span>Order</span></span>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="nav-btn" onclick="navigateTo('menu')">🍽️ Menu</button>
+    <button class="nav-btn primary" onclick="navigateTo('login')">🔐 Login</button>
+  </div>
+</nav>
+
+<!-- ============ PAGE: MENU (PELANGGAN) ============ -->
+<div class="page active" id="page-menu">
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-eyebrow">🌟 Segar Dipanggang Hari Ini</span>
+      <span class="hero-emojis">🥐 🍰 ☕ 🎂 🍞</span>
+      <h1>Pesan <em>Roti & Kue</em><br>Favorit Anda</h1>
+      <p>Nikmati beragam pilihan bakeri premium. Pilih menu, tentukan jumlah, dan pesanan Anda siap dalam hitungan menit.</p>
+      <button class="btn btn-primary btn-lg" onclick="document.getElementById('menu-section').scrollIntoView({behavior:'smooth'})">
+        🛍️ Lihat Menu
+      </button>
+    </div>
+  </section>
+
+  <!-- Category Filter -->
+  <section class="category-section" id="menu-section">
+    <div class="section-label">Pilih Menu</div>
+    <div class="category-tabs" id="category-tabs">
+      <button class="cat-tab active">⏳ Memuat...</button>
+    </div>
+  </section>
+
+  <!-- Menu Grid -->
+  <section class="menu-section">
+    <div class="menu-grid" id="menu-grid">
+      <!-- Diisi oleh JavaScript -->
+    </div>
+  </section>
+
+  <div style="height: 100px;"></div>
+</div>
+
+<!-- ============ PAGE: LOGIN ============ -->
+<div class="page" id="page-login">
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">🍞</span>
+        <h1>BakeryOrder</h1>
+        <p>Login sebagai Staff / Admin</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="login-username" placeholder="Masukkan username"
+               onkeypress="if(event.key==='Enter') doLogin()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="login-password" placeholder="Masukkan password"
+               onkeypress="if(event.key==='Enter') doLogin()">
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="login-btn" onclick="doLogin()">
+        🔐 Masuk
+      </button>
+
+      <button class="btn btn-outline btn-full btn-sm" style="margin-top: 12px;" onclick="navigateTo('menu')">
+        ← Kembali ke Menu
+      </button>
+
+      <div style="margin-top: 24px; padding: 14px; background: var(--cream-mid); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text-light);">
+        <strong>Demo Login:</strong><br>
+        Admin: admin / admin123<br>
+        Kasir: kasir1 / kasir123
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: DASHBOARD (KASIR) ============ -->
+<div class="page" id="page-dashboard">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div style="padding: 16px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
+        <div style="font-family: var(--font-display); color: var(--cream); font-size: 1.1rem; font-weight: 700;">🍞 BakeryOrder</div>
+        <div style="color: rgba(250,243,232,0.5); font-size: 0.78rem; margin-top: 2px;">Panel Staff</div>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item">
+          <a href="#" class="active" onclick="showDashTab('orders')">
+            <span class="sidebar-icon">📋</span> Daftar Pesanan
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" onclick="navigateTo('menu')">
+            <span class="sidebar-icon">🍽️</span> Lihat Menu
+          </a>
+        </li>
+        <li class="sidebar-item" id="sidebar-admin-link" style="display:none;">
+          <a href="#" onclick="navigateTo('admin')">
+            <span class="sidebar-icon">⚙️</span> Kelola Menu (Admin)
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" onclick="logout()">
+            <span class="sidebar-icon">🚪</span> Keluar
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+      <div class="page-title">📊 Dashboard Kasir</div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-value" id="stat-orders">–</div>
+          <div class="stat-label">Total Pesanan Hari Ini</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="stat-pending">–</div>
+          <div class="stat-label">Menunggu Konfirmasi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="stat-done">–</div>
+          <div class="stat-label">Pesanan Selesai</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="stat-revenue" style="font-size:1.1rem;">–</div>
+          <div class="stat-label">Pendapatan Hari Ini</div>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>📋 Daftar Pesanan</h3>
+          <div style="display:flex; gap: 10px; align-items: center; flex-wrap:wrap;">
+            <select class="filter-select" id="status-filter" onchange="loadOrders(this.value)">
+              <option value="">Semua Status</option>
+              <option value="pending">⏳ Menunggu</option>
+              <option value="confirmed">✅ Dikonfirmasi</option>
+              <option value="preparing">🍳 Diproses</option>
+              <option value="ready">🔔 Siap</option>
+              <option value="completed">✔️ Selesai</option>
+              <option value="cancelled">❌ Dibatalkan</option>
+            </select>
+            <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Pesanan</th>
+                <th>Pelanggan</th>
+                <th>Meja</th>
+                <th>Item</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--text-light);">
+                Memuat pesanan...
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ PAGE: ADMIN ============ -->
+<div class="page" id="page-admin">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div style="padding: 16px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
+        <div style="font-family: var(--font-display); color: var(--cream); font-size: 1.1rem; font-weight: 700;">⚙️ Admin Panel</div>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item">
+          <a href="#" class="active">
+            <span class="sidebar-icon">🍽️</span> Kelola Menu
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" onclick="navigateTo('dashboard')">
+            <span class="sidebar-icon">📋</span> Pesanan
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" onclick="navigateTo('menu')">
+            <span class="sidebar-icon">🏪</span> Halaman Menu
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" onclick="logout()">
+            <span class="sidebar-icon">🚪</span> Keluar
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="dashboard-content">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 24px; flex-wrap:wrap; gap:12px;">
+        <div class="page-title" style="margin-bottom:0;">🍽️ Kelola Menu</div>
+        <button class="btn btn-primary" onclick="openAddMenu()">+ Tambah Menu</button>
+      </div>
+
+      <div class="admin-grid" id="admin-menu-grid">
+        <div class="loading-spinner"><div class="spinner"></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ FLOATING CART BUTTON ============ -->
+<button class="cart-fab" id="cart-fab" onclick="openCart()">
+  🛒
+  <span class="cart-fab-badge" style="display:none;">0</span>
+</button>
+
+<!-- ============ MODALS ============ -->
+
+<!-- Cart Modal -->
+<div class="modal-overlay" id="cart-modal" onclick="if(event.target===this) closeModal('cart-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🛒 Keranjang Belanja</div>
+      <button class="modal-close" onclick="closeModal('cart-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="cart-modal-body"></div>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkout-modal" onclick="if(event.target===this) closeModal('checkout-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🧾 Detail Pesanan</div>
+      <button class="modal-close" onclick="closeModal('checkout-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="checkout-modal-body"></div>
+  </div>
+</div>
+
+<!-- Order Detail Modal (Kasir) -->
+<div class="modal-overlay" id="order-detail-modal" onclick="if(event.target===this) closeModal('order-detail-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📄 Detail Pesanan</div>
+      <button class="modal-close" onclick="closeModal('order-detail-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="order-detail-body"></div>
+  </div>
+</div>
+
+<!-- Add/Edit Menu Modal (Admin) -->
+<div class="modal-overlay" id="add-menu-modal" onclick="if(event.target===this) closeModal('add-menu-modal')">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <div class="modal-title" id="menu-form-title">Tambah Menu Baru</div>
+      <button class="modal-close" onclick="closeModal('add-menu-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="menu-form" onsubmit="event.preventDefault(); saveMenu()">
+        <input type="hidden" id="edit-menu-id">
+        <div class="form-group">
+          <label class="form-label">Kategori *</label>
+          <select class="form-control" id="edit-category" required>
+            <option value="">-- Pilih Kategori --</option>
+            <option value="1">🍞 Roti</option>
+            <option value="2">🎂 Kue</option>
+            <option value="3">☕ Minuman</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Menu *</label>
+          <input type="text" class="form-control" id="edit-name" placeholder="Nama produk" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deskripsi</label>
+          <textarea class="form-control" id="edit-description" rows="2" placeholder="Deskripsi singkat produk"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Harga (Rp) *</label>
+          <input type="number" class="form-control" id="edit-price" placeholder="25000" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Gambar</label>
+          <input type="url" class="form-control" id="edit-image-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ketersediaan</label>
+          <select class="form-control" id="edit-available">
+            <option value="1">✅ Tersedia</option>
+            <option value="0">❌ Tidak Tersedia</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+        <button type="button" class="btn btn-outline btn-full btn-sm" style="margin-top: 10px;" onclick="closeModal('add-menu-modal')">Batal</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
