@@ -132,33 +132,36 @@ router.patch('/:id/status', authenticate, authorizeRoles('admin', 'kasir', 'pela
 router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
   try {
     const { payment_status, payment_method } = req.body;
+
+    const validPaymentStatus = ['unpaid', 'paid'];
+    if (!validPaymentStatus.includes(payment_status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status pembayaran tidak valid'
+      });
+    }
+
     const [result] = await db.query(
-      'UPDATE orders SET payment_status = ?, payment_method = ?, status = IF(? = "paid", "completed", status), updated_at = NOW() WHERE id = ?',
-      [payment_status, payment_method, payment_status, req.params.id]
+      'UPDATE orders SET payment_status = ?, payment_method = ?, updated_at = NOW() WHERE id = ?',
+      [payment_status, payment_method || 'cash', req.params.id]
     );
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Pesanan tidak ditemukan' });
-    res.json({ success: true, message: 'Status pembayaran berhasil diperbarui' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pesanan tidak ditemukan'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Status pembayaran berhasil diperbarui'
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Gagal memperbarui pembayaran' });
+    console.error('Payment update error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal memperbarui pembayaran'
+    });
   }
 });
-
-// GET /api/orders/stats/today - Statistik hari ini (admin/kasir)
-router.get('/stats/today', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
-  try {
-    const [stats] = await db.query(`
-      SELECT 
-        COUNT(*) as total_orders,
-        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
-        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
-        SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END) as revenue
-      FROM orders 
-      WHERE DATE(created_at) = CURDATE()
-    `);
-    res.json({ success: true, data: stats[0] });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Gagal mengambil statistik' });
-  }
-});
-
-module.exports = router;
