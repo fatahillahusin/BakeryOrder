@@ -129,17 +129,10 @@ router.patch('/:id/status', authenticate, authorizeRoles('admin', 'kasir', 'pela
 });
 
 // PATCH /api/orders/:id/payment - Update pembayaran (kasir)
+// PATCH /api/orders/:id/payment - Update pembayaran (kasir)
 router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
   try {
     const { payment_status, payment_method } = req.body;
-
-    const validPaymentStatus = ['unpaid', 'paid'];
-    if (!validPaymentStatus.includes(payment_status)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Status pembayaran tidak valid'
-      });
-    }
 
     const [result] = await db.query(
       'UPDATE orders SET payment_status = ?, payment_method = ?, updated_at = NOW() WHERE id = ?',
@@ -165,3 +158,6 @@ router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), asy
     });
   }
 });
+
+// GET /api/orders/stats/today  
+router.get('/stats/today', ...)
