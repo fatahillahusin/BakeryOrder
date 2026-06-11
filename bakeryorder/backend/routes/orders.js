@@ -159,5 +159,27 @@ router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), asy
   }
 });
 
-// GET /api/orders/stats/today  
-router.get('/stats/today', ...)
+router.get('/stats/today', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
+  try {
+    const [stats] = await db.query(`
+      SELECT 
+        COUNT(*) as total_orders,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END) as revenue
+      FROM orders 
+      WHERE DATE(created_at) = CURDATE()
+    `);
+
+    res.json({
+      success: true,
+      data: stats[0]
+    });
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mengambil statistik'
+    });
+  }
+});
