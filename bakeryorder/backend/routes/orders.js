@@ -128,37 +128,7 @@ router.patch('/:id/status', authenticate, authorizeRoles('admin', 'kasir', 'pela
   }
 });
 
-// PATCH /api/orders/:id/payment - Update pembayaran (kasir)
-// PATCH /api/orders/:id/payment - Update pembayaran (kasir)
-router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
-  try {
-    const { payment_status, payment_method } = req.body;
-
-    const [result] = await db.query(
-      'UPDATE orders SET payment_status = ?, payment_method = ?, updated_at = NOW() WHERE id = ?',
-      [payment_status, payment_method || 'cash', req.params.id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Pesanan tidak ditemukan'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Status pembayaran berhasil diperbarui'
-    });
-  } catch (err) {
-    console.error('Payment update error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal memperbarui pembayaran'
-    });
-  }
-});
-
+// GET /api/orders/stats/today - Statistik hari ini (admin/kasir)
 router.get('/stats/today', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
   try {
     const [stats] = await db.query(`
@@ -183,3 +153,5 @@ router.get('/stats/today', authenticate, authorizeRoles('admin', 'kasir'), async
     });
   }
 });
+
+module.exports = router;
