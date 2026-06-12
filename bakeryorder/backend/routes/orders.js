@@ -211,4 +211,44 @@ router.delete('/history/all', authenticate, authorizeRoles('admin', 'kasir'), as
     conn.release();
   }
 });
+
+// DELETE /api/orders/:id - Hapus satu pesanan
+router.delete('/:id', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
+  const conn = await db.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    const orderId = req.params.id;
+
+    await conn.query('DELETE FROM order_items WHERE order_id = ?', [orderId]);
+
+    const [result] = await conn.query('DELETE FROM orders WHERE id = ?', [orderId]);
+
+    if (result.affectedRows === 0) {
+      await conn.rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'Pesanan tidak ditemukan'
+      });
+    }
+
+    await conn.commit();
+
+    res.json({
+      success: true,
+      message: 'Pesanan berhasil dihapus'
+    });
+  } catch (err) {
+    await conn.rollback();
+    console.error('Delete order error:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Gagal menghapus pesanan'
+    });
+  } finally {
+    conn.release();
+  }
+});
 module.exports = router;
