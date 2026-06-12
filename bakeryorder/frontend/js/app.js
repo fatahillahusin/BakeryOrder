@@ -531,6 +531,7 @@ async function loadOrders(status = '') {
         <td>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button class="btn btn-sm btn-outline" onclick="showOrderDetail(${order.id})">👁️</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.id})">🗑️</button>
             ${renderStatusActions(order)}
           </div>
         </td>
@@ -590,7 +591,37 @@ async function clearOrderHistory() {
   const confirmDelete = confirm(
     'Yakin ingin menghapus semua riwayat pesanan? Data pesanan yang sudah dihapus tidak bisa dikembalikan.'
   );
+async function deleteOrder(orderId) {
+  if (!state.token) {
+    showToast('Silahkan login terlebih dahulu', 'error');
+    return;
+  }
 
+  const confirmDelete = confirm('Yakin ingin menghapus pesanan ini?');
+
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${state.token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('Pesanan berhasil dihapus', 'success');
+      loadDashboard();
+    } else {
+      showToast(data.message || 'Gagal menghapus pesanan', 'error');
+    }
+  } catch (err) {
+    console.error('Delete order error:', err);
+    showToast('Gagal menghapus pesanan', 'error');
+  }
+}
   if (!confirmDelete) return;
 
   try {
