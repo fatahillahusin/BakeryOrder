@@ -581,7 +581,39 @@ async function markPaid(orderId) {
     else showToast(data.message, 'error');
   } catch (err) { showToast('Gagal memperbarui pembayaran', 'error'); }
 }
+async function clearOrderHistory() {
+  if (!state.token) {
+    showToast('Silahkan login terlebih dahulu', 'error');
+    return;
+  }
 
+  const confirmDelete = confirm(
+    'Yakin ingin menghapus semua riwayat pesanan? Data pesanan yang sudah dihapus tidak bisa dikembalikan.'
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/orders/history/all`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${state.token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('Riwayat pesanan berhasil dihapus', 'success');
+      loadDashboard();
+    } else {
+      showToast(data.message || 'Gagal menghapus riwayat', 'error');
+    }
+  } catch (err) {
+    console.error('Clear history error:', err);
+    showToast('Gagal menghapus riwayat pesanan', 'error');
+  }
+}
 async function showOrderDetail(orderId) {
   try {
     const res = await fetch(`${API_BASE}/orders/${orderId}`, {
