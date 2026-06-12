@@ -182,4 +182,33 @@ router.patch('/:id/payment', authenticate, authorizeRoles('admin', 'kasir'), asy
     });
   }
 });
+
+// DELETE /api/orders/history/all - Hapus semua riwayat pesanan
+router.delete('/history/all', authenticate, authorizeRoles('admin', 'kasir'), async (req, res) => {
+  const conn = await db.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    await conn.query('DELETE FROM order_items');
+    await conn.query('DELETE FROM orders');
+
+    await conn.commit();
+
+    res.json({
+      success: true,
+      message: 'Riwayat pesanan berhasil dihapus'
+    });
+  } catch (err) {
+    await conn.rollback();
+    console.error('Delete order history error:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Gagal menghapus riwayat pesanan'
+    });
+  } finally {
+    conn.release();
+  }
+});
 module.exports = router;
